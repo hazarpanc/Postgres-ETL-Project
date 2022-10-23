@@ -6,6 +6,15 @@ from sql_queries import *
 
 
 def process_song_file(cur, filepath):
+    '''
+    Extracts the song data from the given json file. Inserts the song and artist data into the database.
+
+            Parameters:
+                    cur (object): Cursor pointing to the database
+                    filepath (str): Filepath of the song json file
+
+    '''
+    
     # open song file
     df = pd.read_json(filepath, lines=True)
 
@@ -19,6 +28,16 @@ def process_song_file(cur, filepath):
 
 
 def process_log_file(cur, filepath):
+    '''
+    Processes the given user activity log file in json format. Extracts the user, song and other information. Transforms the time data. Loads the processed data into their respective databases.
+
+            Parameters:
+                    cur (object): Cursor pointing to the database
+                    filepath (str): Filepath of the song json file
+
+    '''
+    
+    
     # open log file
     df = pd.read_json(filepath, lines=True)
 
@@ -63,6 +82,18 @@ def process_log_file(cur, filepath):
 
 
 def process_data(cur, conn, filepath, func):
+    '''
+    Iterates over multiple files in, and under the subdirectories of the given filepath. Applies the given processing function to the files to process them and load them to the database.
+
+            Parameters:
+                    cur (object): Cursor pointing to the database
+                    conn (object): Connection object to the database
+                    filepath (str): Filepath of the song json file
+                    func (function): Function to apply
+
+    '''
+    
+    
     # get all files matching extension from directory
     all_files = []
     for root, dirs, files in os.walk(filepath):
@@ -82,12 +113,18 @@ def process_data(cur, conn, filepath, func):
 
 
 def main():
+    
+    # Connect to the database
     conn = psycopg2.connect("host=127.0.0.1 dbname=sparkifydb user=student password=student")
     cur = conn.cursor()
 
+    # Process song data
     process_data(cur, conn, filepath='data/song_data', func=process_song_file)
-    process_data(cur, conn, filepath='data/log_data', func=process_log_file)
 
+    # Process user activity log data
+    process_data(cur, conn, filepath='data/log_data', func=process_log_file)
+    
+    # Close the connection
     conn.close()
 
 
